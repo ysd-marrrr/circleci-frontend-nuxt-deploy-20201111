@@ -5,6 +5,7 @@ jobs:
   build:
     docker:
       - image: circleci/node:lts
+    working_directory: /tmp/work
     steps:
       - checkout
       - run: 
@@ -15,18 +16,34 @@ jobs:
           name: 静的サイトのビルド
           command: yarn generate
           working_directory: src
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src
+
   test:
     docker:
       - image: circleci/node:lts
+    working_directory: /tmp/work
     steps:
+      - attach_workspace:
+          at: .
       - run: 
           name: テスト(Jest)
           command: yarn test
           working_directory: src
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src
+
   deploy:
     docker:
       - image: circleci/python:3.7-stretch
+    working_directory: /tmp/work
     steps:
+      - attach_workspace:
+          at: .
       - aws-s3/sync:
           from: src/dist
           to: 's3://$AWS_TARGET_BUCKET'
