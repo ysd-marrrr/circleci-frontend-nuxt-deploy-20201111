@@ -12,14 +12,17 @@ jobs:
           name: Yarn パッケージのキャッシュの復元
           keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
+          working_directory: src
       - run:
           name: 依存関係のインストール
           command: yarn install --frozen-lockfile
+          working_directory: src
       - save_cache:
           name: Yarn パッケージのキャッシュの保存
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
+          working_directory: src
       - run: 
           name: 静的サイトのビルド
           command: yarn generate
